@@ -7,6 +7,8 @@
 #include <time.h>
 #include <pwd.h>
 #include <grp.h>
+#include <dirent.h>
+
 
 int checkInput(char input[]) {
 
@@ -78,7 +80,66 @@ void displayRegularFile_info(const char* path, char input[]) {
     }
 
 }
+
+void displayDirectory_info(const char* path, char input[]){
+
+    struct stat st;
     
+    if(lstat(path, &st) == -1){
+        printf("Error: unable to retrieve information about file %s\n", path);
+        return;
+    }
+
+
+    DIR *dir;
+    struct dirent *entry;
+                    
+    dir = opendir(path);
+
+    if (dir == NULL) {
+        perror("\nError opening directory: ");
+        exit(1);
+    }
+
+    for (int i = 0; input[i]!='\0'; i++)
+        {
+            switch (input[i])
+            {
+            case 'n':
+
+                while((entry = readdir(dir)) != NULL){
+                    printf("\nThe directory name is: %s", entry->d_name);
+                    }
+                printf("\n");
+                closedir(dir);
+                break;
+            case 'd':
+                printf("Size: %lld bytes\n", (long long)st.st_size);
+                break;
+            case 'h':
+                printf("Hard link count: %ld\n", st.st_nlink);
+                break;
+            case 'm':
+                printf("Time of last modification: %s", ctime(&st.st_mtime));
+                break;
+            case 'a':
+                display_access_rights(st.st_mode);
+                break;
+            case 'l':
+                char linkName[64];
+                printf("Enter name of the link: ");
+                scanf("%s", linkName);
+            
+                if (symlink(path, linkName) < 0) {
+                    printf("Error: Cannot create symbolic link '%s'\n", linkName);
+                }
+                break;
+            default:
+                break;
+            }
+            
+        }
+}
 int main(int argc, char *argv[]) {
 
     if (argc > 1) {
@@ -88,20 +149,35 @@ int main(int argc, char *argv[]) {
                 printf("Error: unable to retrieve information about file %s\n", argv[i]);
                 continue;
             }
-            if (!S_ISREG(stats.st_mode)) {
-                printf("Argument %d is not a regular file\n", i);
-                continue;
-            }
-            printf("Argument %d is a regular file\n", i);
-            printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
-            char input[7];
-            scanf("%6s", input);
-            while (!checkInput(input)) {
-                printf("Error: invalid option(s). Valid options are n/d/h/m/a/l\n");
+            if (S_ISREG(stats.st_mode)) {
+
+                printf("Argument %d is a regular file\n", i);
                 printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
+                char input[7];
                 scanf("%6s", input);
+                while (!checkInput(input)) {
+                    printf("Error: invalid option(s). Valid options are n/d/h/m/a/l\n");
+                    printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
+                    scanf("%6s", input);
+                 }
+                displayRegularFile_info(argv[i], input);
+
             }
-            displayRegularFile_info(argv[i], input);
+
+            if(S_ISDIR(stats.st_mode)){
+
+                printf("Argument %d is a Directory\n", i);
+                printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
+                char input[7];
+                scanf("%6s", input);
+                while (!checkInput(input)) {
+                    printf("Error: invalid option(s). Valid options are n/d/h/m/a/l\n");
+                    printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
+                    scanf("%6s", input);
+                 }
+                displayDirectory_info(argv[i], input);
+
+            }
         }
     } else {
         printf("Error: not enough arguments\n");
