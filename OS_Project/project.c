@@ -8,6 +8,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <dirent.h>
+#include <string.h>
 
 int checkInput(char input[], int option)
 {
@@ -26,6 +27,11 @@ int checkInput(char input[], int option)
             }
 
             if ((input[i] != 'n' && input[i] != 'l' && input[i] != 'd' && input[i] != 't' && input[i] != 'a') && option == 2)
+            {
+                return 0;
+            }
+
+            if ((input[i] != 'n' && input[i] != 'd' && input[i] != 'h' && input[i] != 'm' && input[i] != 'a' && input[i] != 'l' && input[i] != 'c') && option == 3)
             {
                 return 0;
             }
@@ -131,6 +137,42 @@ void displayDirectory_info(const char *path, char input[])
         case 'd':
             printf("Size: %lld bytes\n", (long long)st.st_size);
             break;
+        case 'c':
+            dir = opendir(path);
+
+            if (dir == NULL)
+            {
+                perror("\nError opening directory: ");
+                exit(1);
+            }
+
+            int noOfCFiles = 0;
+
+            while ((entry = readdir(dir)) != NULL)
+            {
+
+                char names[1024];
+
+                snprintf(names, sizeof(names), "%s/%s", path, entry->d_name);
+
+                if (lstat(names, &st) == -1)
+                {
+                    perror("\nError getting file st: ");
+                    exit(1);
+                }
+
+                if (S_ISREG(st.st_mode) && strstr(entry->d_name, ".c"))
+                {
+
+                    noOfCFiles++;
+                }
+            }
+
+            printf("\nTotal number of .c files in the directory is: %d\n", noOfCFiles);
+
+            closedir(dir);
+            break;
+
         case 'h':
             printf("Hard link count: %ld\n", st.st_nlink);
             break;
@@ -253,13 +295,13 @@ int main(int argc, char *argv[])
             {
 
                 printf("Argument %d is a Directory\n", i);
-                printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
+                printf("Select option(s) (n/d/h/m/a/l/c)(Include the hyphen before!!!): ");
                 char input[7];
                 scanf("%6s", input);
-                while (!checkInput(input, 1))
+                while (!checkInput(input, 3))
                 {
-                    printf("Error: invalid option(s). Valid options are n/d/h/m/a/l\n");
-                    printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
+                    printf("Error: invalid option(s). Valid options are n/d/h/m/a/l/c\n");
+                    printf("Select option(s) (n/d/h/m/a/l/c)(Include the hyphen before!!!): ");
                     scanf("%6s", input);
                 }
                 displayDirectory_info(argv[i], input);
