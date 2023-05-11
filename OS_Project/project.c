@@ -93,6 +93,7 @@ void displayRegularFile_info(const char *path, char input[])
                 printf("Error: Cannot create symbolic link '%s'\n", linkName);
             }
             break;
+
         default:
             break;
         }
@@ -257,6 +258,7 @@ void displayLink_info(const char *path, char input[])
                 perror("readlink");
                 return;
             }
+            break;
         default:
             break;
         }
