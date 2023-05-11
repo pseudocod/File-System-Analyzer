@@ -283,12 +283,12 @@ int main(int argc, char *argv[])
                 printf("Argument %d is a regular file\n", i);
                 printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
                 char input[7];
-                scanf("%6s", input);
+                scanf("%10s", input);
                 while (!checkInput(input, 1))
                 {
                     printf("Error: invalid option(s). Valid options are n/d/h/m/a/l\n");
                     printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
-                    scanf("%6s", input);
+                    scanf("%10s", input);
                 }
                 displayRegularFile_info(argv[i], input);
             }
@@ -298,13 +298,13 @@ int main(int argc, char *argv[])
 
                 printf("Argument %d is a Directory\n", i);
                 printf("Select option(s) (n/d/h/m/a/l/c)(Include the hyphen before!!!): ");
-                char input[7];
-                scanf("%6s", input);
+                char input[10];
+                scanf("%10s", input);
                 while (!checkInput(input, 3))
                 {
                     printf("Error: invalid option(s). Valid options are n/d/h/m/a/l/c\n");
                     printf("Select option(s) (n/d/h/m/a/l/c)(Include the hyphen before!!!): ");
-                    scanf("%6s", input);
+                    scanf("%10s", input);
                 }
                 displayDirectory_info(argv[i], input);
             }
@@ -314,12 +314,12 @@ int main(int argc, char *argv[])
                 printf("Argument %d is a link\n", i);
                 printf("Select option(s) (n/l/d/t/a)(Include the hyphen before!!!): ");
                 char input[7];
-                scanf("%6s", input);
+                scanf("%10s", input);
                 while (!checkInput(input, 2))
                 {
                     printf("Error: invalid option(s). Valid options are n/l/d/t/a\n");
                     printf("Select option(s) (n/l/d/t/a)(Include the hyphen before!!!): ");
-                    scanf("%6s", input);
+                    scanf("%10s", input);
                 }
                 displayLink_info(argv[i], input);
             }
