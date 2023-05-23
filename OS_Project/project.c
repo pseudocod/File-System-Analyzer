@@ -296,7 +296,6 @@ int main(int argc, char *argv[])
                     printf("Select option(s) (n/d/h/m/a/l)(Include the hyphen before!!!): ");
                     scanf("%10s", input);
                 }
-                displayRegularFile_info(argv[i], input);
                 strcpy(option, input);
             }
 
@@ -313,7 +312,6 @@ int main(int argc, char *argv[])
                     printf("Select option(s) (n/d/h/m/a/l/c)(Include the hyphen before!!!): ");
                     scanf("%10s", input);
                 }
-                displayDirectory_info(argv[i], input);
                 strcpy(option, input);
 
             }
@@ -330,7 +328,6 @@ int main(int argc, char *argv[])
                     printf("Select option(s) (n/l/d/t/a)(Include the hyphen before!!!): ");
                     scanf("%10s", input);
                 }
-                displayLink_info(argv[i], input);
                 strcpy(option, input);
             }
             if((pid = fork()) < 0){
@@ -339,7 +336,6 @@ int main(int argc, char *argv[])
             }
 
             else if(pid == 0){
-                // Create first child process
 
                 if(S_ISREG(stats.st_mode)){
                     displayRegularFile_info(argv[i], option);
@@ -354,10 +350,9 @@ int main(int argc, char *argv[])
                 exit(EXIT_SUCCESS);
             }
 
-            // Parent process here
             char *ext = strrchr(argv[i], '.');
             int pfd[2];
-            // Create pipe only if we have regular file
+            // create pipe only if we have regular file
             if (S_ISREG(stats.st_mode) && pipe(pfd) < 0) {
                 perror("\nPipe creation error\n");
                 exit(EXIT_FAILURE);
@@ -367,16 +362,15 @@ int main(int argc, char *argv[])
                 perror("Error\n");
                 exit(EXIT_FAILURE);
             } else if (pid == 0) {
-                // Create second child process
                 
                 if(S_ISREG(stats.st_mode)){
-                    // Close read end of the pipe => the child process wants to write into the pipe
+                   // only needs to write
                     close(pfd[0]);
                     if (ext != NULL && strcmp(ext, ".c") == 0) {
-                        // Redirect stdout to the write end of the pipe
+                        // stdout to end of pipe
                         dup2(pfd[1], 1);
 
-                        // Execute the script
+                        
                         if (execlp("./compileScript.sh", "./compileScript.sh", argv[i], NULL) == -1) {
                             perror(strerror(errno));
                             exit(errno);
@@ -425,9 +419,8 @@ int main(int argc, char *argv[])
                 }
             }
             
-            // Computing the score in the parent process
             if(S_ISREG(stats.st_mode)){
-                // The parent process closes the write end of the pipe => the parent process wants to read from the pipe
+                // only needs to read
                 close(pfd[1]);
                 if (ext != NULL && strcmp(ext, ".c") == 0) {
                     char string[255];
